@@ -1,49 +1,51 @@
-document.addEventListener('DOMContentLoaded', function () {
-  const upButtons = document.querySelectorAll('#up-button');
-  const downButtons = document.querySelectorAll('#down-button');
-  const lifts = document.querySelectorAll('#lift');
-  const levels = document.querySelectorAll('.level-container');
-  const levelHeight = 120; // 100px for level height + 20px for margin
+const levelsInput = document.getElementById('levels');
+const liftsInput = document.getElementById('lifts');
 
-  // adding event listner to each up button
-  upButtons.forEach((button, index) => {
-    button.addEventListener('click', () => {
-      if (index > 0) {
-        // Ensure we're not at the top level
-        const targetLevel = levels[index - 1]; // The level above the clicked button
-        moveLift(targetLevel, index - 1, 'up');
-      }
-    });
-  });
-  // ading event listener to each down button
-  downButtons.forEach((button, index) => {
-    button.addEventListener('click', () => {
-      if (index < levels.length - 1) {
-        // Ensure we're not at the bottom level
-        const targetLevel = levels[index + 1]; // The level below the clicked button
-        moveLift(targetLevel, index + 1, 'down');
-      }
-    });
-  });
+function handleSubmit(event) {
+  event.preventDefault(); // Prevent form submission
+  const levels = parseInt(levelsInput.value);
+  const lifts = parseInt(liftsInput.value);
 
-  function moveLift(targetLevel, targetIndex, direction) {
-    const availableLift = Array.from(lifts).find((lift) => !lift.dataset.inUse);
+  // Store the levels and lifts data for later use
+  localStorage.setItem('levels', levels);
+  localStorage.setItem('lifts', lifts);
 
-    if (availableLift) {
-      const currentLevel = availableLift.closest('.level-container');
-      const currentIndex = Array.from(levels).indexOf(currentLevel);
-      const levelDifference =
-        direction === 'up'
-          ? currentIndex - targetIndex
-          : targetIndex - currentIndex;
+  // Render the levels and lifts based on the stored data
+  renderLevelsAndLifts(levels, lifts);
+}
 
-      availableLift.dataset.inUse = 'true';
-      availableLift.style.transition = 'transform 1s';
-      availableLift.style.transform = `translateY(${
-        direction === 'up'
-          ? -levelHeight * levelDifference
-          : levelHeight * levelDifference
-      }px)`;
-    }
+// Attach the event listener to the form
+const form = document.querySelector('form');
+form.addEventListener('submit', handleSubmit);
+
+function renderLevelsAndLifts(levels, lifts) {
+  const levelContainer = document.querySelector('.level-container');
+
+  // Remove existing level containers if any
+  levelContainer.innerHTML = '';
+
+  // Create level containers based on the specified number of levels
+  for (let i = levels; i >= 1; i--) {
+    const levelElement = document.createElement('div');
+    levelElement.classList.add('levels');
+
+    // Add buttons and level number to the level container
+    levelElement.innerHTML = `
+      <div class="button-container">
+        <button class="button" id="up-button">Up +</button>
+        <button class="button" id="down-button">Down -</button>
+      </div>
+      <h3>Level ${i}</h3>
+    `;
+
+    levelContainer.appendChild(levelElement);
   }
-});
+
+  // Create the lift element
+  for (let i = 0; i < lifts; i++) {
+    const liftElement = document.createElement('div');
+    liftElement.classList.add('lift');
+    liftElement.id = `lift${i + 1}`; // Assign unique IDs
+    levelContainer.appendChild(liftElement);
+  }
+}
