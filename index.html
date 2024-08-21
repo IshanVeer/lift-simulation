@@ -7,73 +7,18 @@
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <!-- lift simulation container -->
     <div class="container">
       <h1>Lift Simulation</h1>
-      <!-- Individual container -->
-      <!-- Level 7 -->
-      <div class="level-container">
-        <!-- button container -->
-        <div class="button-container">
-          <button class="button" id="down-button">Down -</button>
-        </div>
-        <h3>Level 7</h3>
-      </div>
-      <!-- Level 6 -->
-      <div class="level-container">
-        <!-- button container -->
-        <div class="button-container">
-          <button class="button" id="up-button">Up +</button>
-          <button class="button" id="down-button">Down -</button>
-        </div>
-        <h3>Level 6</h3>
-      </div>
-      <!-- Level 5 -->
-      <div class="level-container">
-        <!-- button container -->
-        <div class="button-container">
-          <button class="button" id="up-button">Up +</button>
-          <button class="button" id="down-button">Down -</button>
-        </div>
-        <h3>Level 5</h3>
-      </div>
-      <!-- Level 4 -->
-      <div class="level-container">
-        <!-- button container -->
-        <div class="button-container">
-          <button class="button" id="up-button">Up +</button>
-          <button class="button" id="down-button">Down -</button>
-        </div>
-        <h3>Level 4</h3>
-      </div>
-      <!-- Level 3 -->
-      <div class="level-container">
-        <!-- button container -->
-        <div class="button-container">
-          <button class="button" id="up-button">Up +</button>
-          <button class="button" id="down-button">Down -</button>
-        </div>
-        <h3>Level 3</h3>
-      </div>
-      <!-- Level 2 -->
-      <div class="level-container">
-        <!-- button container -->
-        <div class="button-container">
-          <button class="button" id="up-button">Up +</button>
-          <button class="button" id="down-button">Down -</button>
-        </div>
-        <h3>Level 2</h3>
-      </div>
-      <!-- Level 1 -->
-      <div class="level-container">
-        <!-- button container -->
-        <div class="button-container">
-          <button class="button" id="up-button">Up +</button>
-        </div>
-        <!-- lift -->
-        <div class="lift" id="lift"></div>
-        <h3>Level 1</h3>
-      </div>
+
+      <form action="submit" id="form">
+        <label for="levels">Levels</label>
+        <input type="number" id="levels" />
+        <label for="lifts">Lifts</label>
+        <input type="number" id="lifts" />
+        <button type="submit">submit</button>
+      </form>
+
+      <div class="level-container"></div>
     </div>
     <script src="./script.js"></script>
   </body>
