@@ -26,11 +26,19 @@
 .button {
   display: inline-block;
   padding: 0.5rem 1rem;
-  background-color: #007bff;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+}
+#up-button {
+  background-color: #a4e889;
+}
+#down-button {
+  background-color: #eb7b6b;
+}
+.lift-container {
+  display: flex;
 }
 
 .lift {
@@ -40,6 +48,6 @@
   transform: translateX(-50%);
   width: 50px;
   height: 80px;
-  background-color: aqua;
+  background-color: #6caceb;
   transition: transform 1s;
 }
