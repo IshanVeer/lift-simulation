@@ -40,12 +40,17 @@ function renderLevelsAndLifts(levels, lifts) {
 
     levelContainer.appendChild(levelElement);
   }
+  const liftContainer = document.createElement('div');
+  liftContainer.classList.add('lift-container');
+  levelContainer.appendChild(liftContainer);
+
+  const maxLift = Math.min(lifts, 5);
 
   // Create the lift element
-  for (let i = 0; i < lifts; i++) {
+  for (let i = 0; i < maxLift; i++) {
     const liftElement = document.createElement('div');
     liftElement.classList.add('lift');
     liftElement.id = `lift${i + 1}`; // Assign unique IDs
-    levelContainer.appendChild(liftElement);
+    liftContainer.appendChild(liftElement);
   }
 }
