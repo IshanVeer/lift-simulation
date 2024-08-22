@@ -38,16 +38,17 @@
   background-color: #eb7b6b;
 }
 .lift-container {
+  position: absolute;
+  bottom: 0;
+  left: 8rem;
   display: flex;
+  gap: 5rem;
 }
 
 .lift {
-  position: absolute;
-  bottom: 5px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 50px;
-  height: 80px;
+  width: 80px;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  height: 120px;
   background-color: #6caceb;
-  transition: transform 1s;
 }
