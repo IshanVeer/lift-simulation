@@ -37,12 +37,15 @@
 #down-button {
   background-color: #eb7b6b;
 }
+
 .lift-container {
   position: absolute;
   bottom: 0;
   left: 8rem;
   display: flex;
   gap: 5rem;
+  height: 100%;
+  width: calc(100% - 16rem); /* Adjust based on your layout */
 }
 
 .lift {
@@ -51,4 +54,7 @@
   border-top-right-radius: 6px;
   height: 120px;
   background-color: #6caceb;
+  position: absolute;
+  bottom: 0;
+  transition: transform 0.5s linear;
 }
