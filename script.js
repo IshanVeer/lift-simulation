@@ -95,7 +95,7 @@ function findNearestAvailableLift(targetLevel, direction) {
 
 function moveLift(lift, targetLevel) {
   lift.isMoving = true;
-  const levelHeight = 120 + 30; // lift height + gap
+  const levelHeight = 151; // lift height + gap
   const distance = (targetLevel - lift.currentLevel) * levelHeight;
   const levelsToTravel = Math.abs(targetLevel - lift.currentLevel);
   const duration = levelsToTravel * 2; // 2 seconds per level
