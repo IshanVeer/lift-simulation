@@ -97,7 +97,8 @@ function moveLift(lift, targetLevel) {
   lift.isMoving = true;
   const levelHeight = 120 + 30; // lift height + gap
   const distance = (targetLevel - lift.currentLevel) * levelHeight;
-  const duration = Math.abs(targetLevel - lift.currentLevel) * 2; // 2 seconds per level
+  const levelsToTravel = Math.abs(targetLevel - lift.currentLevel);
+  const duration = levelsToTravel * 2; // 2 seconds per level
 
   lift.element.style.transition = `transform ${duration}s linear`;
   lift.element.style.transform = `translateY(${-distance}px)`;
