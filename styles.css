@@ -32,10 +32,10 @@
   border-radius: 5px;
   cursor: pointer;
 }
-#up-button {
+.up-button {
   background-color: #a4e889;
 }
-#down-button {
+.down-button {
   background-color: #eb7b6b;
 }
 

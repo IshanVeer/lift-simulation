@@ -1,8 +1,11 @@
+// Global variables
 const levelsInput = document.getElementById('levels');
 const liftsInput = document.getElementById('lifts');
 let lifts = [];
 let levels = 0;
+const levelHeight = 151;
 
+// form handler
 function handleSubmit(event) {
   event.preventDefault();
   levels = parseInt(levelsInput.value);
@@ -18,6 +21,7 @@ function handleSubmit(event) {
 const form = document.querySelector('form');
 form.addEventListener('submit', handleSubmit);
 
+// Renders levels and lift according to the data entered in the form
 function renderLevelsAndLifts(levels, numLifts) {
   const levelContainer = document.querySelector('.level-container');
   levelContainer.innerHTML = '';
@@ -60,6 +64,8 @@ function setupLiftSystem(numLifts) {
     id: i + 1,
     currentLevel: 1,
     isMoving: false,
+    direction: null,
+    queue: [],
     element: document.getElementById(`lift${i + 1}`),
   }));
 
@@ -75,16 +81,25 @@ function handleLiftCall(event) {
     ? 'up'
     : 'down';
 
-  const availableLift = findNearestAvailableLift(targetLevel, direction);
+  const availableLift = findSuitableLift(targetLevel, direction);
 
   if (availableLift) {
-    moveLift(availableLift, targetLevel);
+    queueLiftMovement(availableLift, targetLevel, direction);
   }
 }
 
-function findNearestAvailableLift(targetLevel, direction) {
+function findSuitableLift(targetLevel, direction) {
+  // First, check if Lift 1 is available
+  if (!lifts[0].isMoving) {
+    return lifts[0];
+  }
+
+  // Then, find the nearest available lift
   return lifts
-    .filter((lift) => !lift.isMoving)
+    .filter(
+      (lift) =>
+        !lift.isMoving || (lift.isMoving && lift.direction === direction)
+    )
     .sort((a, b) => {
       const distA = Math.abs(a.currentLevel - targetLevel);
       const distB = Math.abs(b.currentLevel - targetLevel);
@@ -93,9 +108,25 @@ function findNearestAvailableLift(targetLevel, direction) {
     })[0];
 }
 
-function moveLift(lift, targetLevel) {
+function queueLiftMovement(lift, targetLevel, direction) {
+  lift.queue.push({ level: targetLevel, direction: direction });
+
+  if (!lift.isMoving) {
+    processLiftQueue(lift);
+  }
+}
+
+function processLiftQueue(lift) {
+  if (lift.queue.length === 0) {
+    lift.isMoving = false;
+    lift.direction = null;
+    return;
+  }
+
   lift.isMoving = true;
-  const levelHeight = 151; // lift height + gap
+  const { level: targetLevel, direction } = lift.queue[0];
+  lift.direction = direction;
+
   const distance = (targetLevel - lift.currentLevel) * levelHeight;
   const levelsToTravel = Math.abs(targetLevel - lift.currentLevel);
   const duration = levelsToTravel * 2; // 2 seconds per level
@@ -105,6 +136,7 @@ function moveLift(lift, targetLevel) {
 
   setTimeout(() => {
     lift.currentLevel = targetLevel;
-    lift.isMoving = false;
+    lift.queue.shift();
+    processLiftQueue(lift);
   }, duration * 1000);
 }
