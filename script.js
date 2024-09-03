@@ -127,12 +127,23 @@ function processLiftQueue(lift) {
   const { level: targetLevel, direction } = lift.queue[0];
   lift.direction = direction;
 
-  const distance = (targetLevel - lift.currentLevel) * levelHeight;
-  const levelsToTravel = Math.abs(targetLevel - lift.currentLevel);
-  const duration = levelsToTravel * 2; // 2 seconds per level
+  const targetDistance = (targetLevel - 1) * levelHeight;
 
+  const currentDistance = (lift.currentLevel - 1) * levelHeight;
+  const moveDistance = targetDistance - currentDistance;
+
+  // Get the current transform value
+  const currentTransform = getComputedStyle(lift.element).transform;
+  const matrix = new DOMMatrix(currentTransform);
+  const currentY = matrix.m42;
+
+  // Calculate the new Y position
+  const newY = currentY - moveDistance;
+  const levelsToTravel = Math.abs(targetLevel - lift.currentLevel);
+  // Set the transform to the new position relative to the current position
+  const duration = Math.abs(targetLevel - lift.currentLevel) * 2;
   lift.element.style.transition = `transform ${duration}s linear`;
-  lift.element.style.transform = `translateY(${-distance}px)`;
+  lift.element.style.transform = `translateY(${newY}px)`;
 
   setTimeout(() => {
     lift.currentLevel = targetLevel;
