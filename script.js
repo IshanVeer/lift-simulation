@@ -55,6 +55,7 @@ function renderLevelsAndLifts(levels, numLifts) {
     liftElement.classList.add('lift');
     liftElement.id = `lift${i + 1}`;
     liftElement.style.left = `${i * liftSpacing}px`;
+    liftElement.innerHTML = `<div class="lift-interior"></div> <div class="lift-door left-door"></div> <div class="lift-door right-door"></div>`;
     liftContainer.appendChild(liftElement);
   }
 }
@@ -115,6 +116,22 @@ function queueLiftMovement(lift, targetLevel, direction) {
     processLiftQueue(lift);
   }
 }
+// animate lift doors
+function animateLiftDoors(lift, action) {
+  const leftDoor = lift.element.querySelector('.left-door');
+  const rightDoor = lift.element.querySelector('.right-door');
+  const interior = lift.element.querySelector('.lift-interior');
+
+  if (action === 'open') {
+    leftDoor.style.transform = 'translateX(-100%)';
+    rightDoor.style.transform = 'translate(100%)';
+    interior.style.opacity = '1';
+  } else if (action === 'close') {
+    leftDoor.style.transform = 'translateX(0)';
+    rightDoor.style.transform = 'translateX(0)';
+    interior.style.opacity = '0';
+  }
+}
 
 function processLiftQueue(lift) {
   if (lift.queue.length === 0) {
@@ -139,15 +156,28 @@ function processLiftQueue(lift) {
 
   // Calculate the new Y position
   const newY = currentY - moveDistance;
-  const levelsToTravel = Math.abs(targetLevel - lift.currentLevel);
+
   // Set the transform to the new position relative to the current position
   const duration = Math.abs(targetLevel - lift.currentLevel) * 2;
-  lift.element.style.transition = `transform ${duration}s linear`;
-  lift.element.style.transform = `translateY(${newY}px)`;
+  if (lift.currentLevel === targetLevel) {
+    animateLiftDoors(lift, 'open');
+    setTimeout(() => {
+      animateLiftDoors(lift, 'close');
+      lift.queue.shift();
+      processLiftQueue(lift);
+    }, 3000);
+  } else {
+    lift.element.style.transition = `transform ${duration}s linear`;
+    lift.element.style.transform = `translateY(${newY}px)`;
 
-  setTimeout(() => {
-    lift.currentLevel = targetLevel;
-    lift.queue.shift();
-    processLiftQueue(lift);
-  }, duration * 1000);
+    setTimeout(() => {
+      lift.currentLevel = targetLevel;
+      animateLiftDoors(lift, 'open');
+      setTimeout(() => {
+        animateLiftDoors(lift, 'close');
+        lift.queue.shift();
+        processLiftQueue(lift);
+      }, 3000);
+    }, duration * 1000);
+  }
 }
