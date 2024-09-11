@@ -32,6 +32,10 @@
   border-radius: 5px;
   cursor: pointer;
 }
+.button:disabled {
+  background-color: #cccccc;
+  color: #666666;
+}
 .up-button {
   background-color: #a4e889;
 }
