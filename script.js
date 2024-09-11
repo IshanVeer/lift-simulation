@@ -77,39 +77,47 @@ function setupLiftSystem(numLifts) {
 }
 
 function handleLiftCall(event) {
+  const button = event.target;
+  console.log(button, 'button');
   const targetLevel = parseInt(event.target.dataset.level);
   const direction = event.target.classList.contains('up-button')
     ? 'up'
     : 'down';
 
+  button.disabled = true;
   const availableLift = findSuitableLift(targetLevel, direction);
 
   if (availableLift) {
     queueLiftMovement(availableLift, targetLevel, direction);
   }
 }
+function enableButtonAtLevel(level) {
+  const buttons = document.querySelectorAll(`.button[data-level="${level}"]`);
+  buttons.forEach((button) => {
+    button.disabled = false;
+  });
+}
 
 function findSuitableLift(targetLevel, direction) {
-  // First, check if Lift 1 is available
-  if (!lifts[0].isMoving) {
-    return lifts[0];
-  }
+  let nearestLift = null;
+  let shortestDistance = Infinity;
 
-  // Then, find the nearest available lift
-  return lifts
-    .filter(
-      (lift) =>
-        !lift.isMoving || (lift.isMoving && lift.direction === direction)
-    )
-    .sort((a, b) => {
-      const distA = Math.abs(a.currentLevel - targetLevel);
-      const distB = Math.abs(b.currentLevel - targetLevel);
-      if (distA === distB) return a.id - b.id;
-      return distA - distB;
-    })[0];
+  for (let i = 0; i < lifts.length; i++) {
+    const lift = lifts[i];
+
+    if (lift.isMoving === false) {
+      let distance = Math.abs(lift.currentLevel - targetLevel);
+      if (distance < shortestDistance) {
+        shortestDistance = distance;
+        nearestLift = lift;
+      }
+    }
+  }
+  return nearestLift;
 }
 
 function queueLiftMovement(lift, targetLevel, direction) {
+  // check if target level is present in the queue then you
   lift.queue.push({ level: targetLevel, direction: direction });
 
   if (!lift.isMoving) {
@@ -164,6 +172,7 @@ function processLiftQueue(lift) {
     setTimeout(() => {
       animateLiftDoors(lift, 'close');
       lift.queue.shift();
+      enableButtonAtLevel(targetLevel);
       processLiftQueue(lift);
     }, 3000);
   } else {
@@ -176,6 +185,8 @@ function processLiftQueue(lift) {
       setTimeout(() => {
         animateLiftDoors(lift, 'close');
         lift.queue.shift();
+        lift.isMoving = false;
+        enableButtonAtLevel(targetLevel);
         processLiftQueue(lift);
       }, 3000);
     }, duration * 1000);
