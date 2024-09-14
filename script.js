@@ -4,6 +4,7 @@ const liftsInput = document.getElementById('lifts');
 let lifts = [];
 let levels = 0;
 const levelHeight = 151;
+let globalRequestQueue = []; // Global queue for handling all button clicks
 
 // form handler
 function handleSubmit(event) {
@@ -31,8 +32,16 @@ function renderLevelsAndLifts(levels, numLifts) {
     levelElement.classList.add('levels');
     levelElement.innerHTML = `
       <div class="button-container">
-        <button class="button up-button" data-level="${i}">Up +</button>
-        <button class="button down-button" data-level="${i}">Down -</button>
+        ${
+          i !== levels
+            ? `<button class="button up-button" data-level="${i}">Up +</button>`
+            : ''
+        }
+        ${
+          i !== 1
+            ? `<button class="button down-button" data-level="${i}">Down -</button>`
+            : ''
+        }
       </div>
       <h3>Level ${i}</h3>
     `;
@@ -65,7 +74,6 @@ function setupLiftSystem(numLifts) {
     id: i + 1,
     currentLevel: 1,
     isMoving: false,
-    direction: null,
     queue: [],
     element: document.getElementById(`lift${i + 1}`),
   }));
@@ -78,19 +86,20 @@ function setupLiftSystem(numLifts) {
 
 function handleLiftCall(event) {
   const button = event.target;
-  console.log(button, 'button');
   const targetLevel = parseInt(event.target.dataset.level);
   const direction = event.target.classList.contains('up-button')
     ? 'up'
     : 'down';
 
   button.disabled = true;
-  const availableLift = findSuitableLift(targetLevel, direction);
 
-  if (availableLift) {
-    queueLiftMovement(availableLift, targetLevel, direction);
-  }
+  // Add the request to the global queue
+  globalRequestQueue.push({ targetLevel, direction });
+
+  // Find a suitable lift to handle the requests
+  assignLiftToQueue();
 }
+
 function enableButtonAtLevel(level) {
   const buttons = document.querySelectorAll(`.button[data-level="${level}"]`);
   buttons.forEach((button) => {
@@ -98,33 +107,28 @@ function enableButtonAtLevel(level) {
   });
 }
 
-function findSuitableLift(targetLevel, direction) {
-  let nearestLift = null;
-  let shortestDistance = Infinity;
+function assignLiftToQueue() {
+  if (globalRequestQueue.length === 0) return;
 
-  for (let i = 0; i < lifts.length; i++) {
-    const lift = lifts[i];
-
-    if (lift.isMoving === false) {
-      let distance = Math.abs(lift.currentLevel - targetLevel);
-      if (distance < shortestDistance) {
-        shortestDistance = distance;
-        nearestLift = lift;
-      }
+  // Find an idle lift to assign the next request in the global queue
+  for (let lift of lifts) {
+    if (!lift.isMoving && globalRequestQueue.length > 0) {
+      const nextRequest = globalRequestQueue.shift(); // Get the next request
+      queueLiftMovement(lift, nextRequest.targetLevel, nextRequest.direction);
+      break; // Assign one request to one lift at a time
     }
   }
-  return nearestLift;
 }
 
 function queueLiftMovement(lift, targetLevel, direction) {
-  // check if target level is present in the queue then you
   lift.queue.push({ level: targetLevel, direction: direction });
 
   if (!lift.isMoving) {
     processLiftQueue(lift);
   }
 }
-// animate lift doors
+
+// Animate lift doors
 function animateLiftDoors(lift, action) {
   const leftDoor = lift.element.querySelector('.left-door');
   const rightDoor = lift.element.querySelector('.right-door');
@@ -145,28 +149,26 @@ function processLiftQueue(lift) {
   if (lift.queue.length === 0) {
     lift.isMoving = false;
     lift.direction = null;
+
+    // After processing current queue, assign new requests to the lift
+    assignLiftToQueue();
     return;
   }
 
   lift.isMoving = true;
-  const { level: targetLevel, direction } = lift.queue[0];
-  lift.direction = direction;
+  const { level: targetLevel } = lift.queue[0];
 
   const targetDistance = (targetLevel - 1) * levelHeight;
-
   const currentDistance = (lift.currentLevel - 1) * levelHeight;
   const moveDistance = targetDistance - currentDistance;
 
-  // Get the current transform value
   const currentTransform = getComputedStyle(lift.element).transform;
   const matrix = new DOMMatrix(currentTransform);
   const currentY = matrix.m42;
 
-  // Calculate the new Y position
   const newY = currentY - moveDistance;
-
-  // Set the transform to the new position relative to the current position
   const duration = Math.abs(targetLevel - lift.currentLevel) * 2;
+
   if (lift.currentLevel === targetLevel) {
     animateLiftDoors(lift, 'open');
     setTimeout(() => {
